@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<!-- saved from url=(0119)file:///Users/tajmalhussain/Documents/Codex/2026-04-30/files-mentioned-by-the-user-hashtag/hashtag_sentiment_fixed.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HashPulse — Sports Sentiment Intelligence</title>
+<link href="./HashPulse — Sports Sentiment Intelligence_files/css2" rel="stylesheet">
+<script src="./HashPulse — Sports Sentiment Intelligence_files/chart.umd.js"></script>
+<script>
+if(!window.Chart){
+  document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js"><\\/script>');
+}
+</script>
+<style>
+/* ═══════════════════════════════════════ RESET & ROOT ═══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080c14;--bg2:#0e1420;--bg3:#141c2e;--bg4:#1a2340;
+  --border:#1e2d4a;--border2:#243659;
+  --accent:#00e5ff;--accent2:#ff3b6b;--accent3:#ffb800;
+  --pos:#00d68f;--neg:#ff4757;--neu:#8892a4;
+  --pos-bg:rgba(0,214,143,.1);--neg-bg:rgba(255,71,87,.1);--neu-bg:rgba(136,146,164,.08);
+  --text:#e8edf5;--muted:#5a6a82;--muted2:#8892a4;
+  --font-display:'Barlow Condensed',sans-serif;
+  --font-body:'Barlow',sans-serif;
+  --rad:8px;--rad-lg:14px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ═══════════════════════════════════════ SCANLINE OVERLAY ═══ */
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,255,.012) 2px,rgba(0,229,255,.012) 4px);pointer-events:none;z-index:1000}
+
+/* ═══════════════════════════════════════ HEADER ═══ */
+header{background:rgba(8,12,20,.95);border-bottom:1px solid var(--border);padding:0 32px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;backdrop-filter:blur(12px)}
+.logo{font-family:var(--font-display);font-size:26px;font-weight:900;letter-spacing:-0.5px;display:flex;align-items:center;gap:6px}
+.logo-hash{color:var(--accent);text-shadow:0 0 20px rgba(0,229,255,.5)}
+.logo-word{color:var(--text)}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--accent2);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.header-tags{display:flex;gap:8px}
+.htag{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;padding:3px 9px;border-radius:4px;border:1px solid}
+.htag-r{border-color:#ff4500;color:#ff4500;background:rgba(255,69,0,.08)}
+.htag-y{border-color:#ff0000;color:#ff0000;background:rgba(255,0,0,.08)}
+.htag-n{border-color:var(--pos);color:var(--pos);background:var(--pos-bg)}
+.htag-t{border-color:var(--accent);color:var(--accent);background:rgba(0,229,255,.08)}
+
+/* ═══════════════════════════════════════ VIEWS ═══ */
+.view{display:none;animation:fadeIn .3s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════════════════ SEARCH VIEW ═══ */
+#searchView{min-height:calc(100vh - 58px);display:none;align-items:center;justify-content:center;flex-direction:column;padding:40px 20px}
+#searchView.active{display:flex}
+
+.hero-section{text-align:center;margin-bottom:48px}
+.hero-eyebrow{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';display:inline-block;width:32px;height:1px;background:var(--accent);opacity:.5}
+.hero-title{font-family:var(--font-display);font-size:clamp(52px,8vw,90px);font-weight:900;line-height:.95;letter-spacing:-1px;margin-bottom:20px}
+.hero-title .line1{color:var(--text)}
+.hero-title .line2{color:var(--accent);text-shadow:0 0 40px rgba(0,229,255,.3)}
+.hero-subtitle{font-size:16px;color:var(--muted2);line-height:1.7;max-width:500px;margin:0 auto}
+
+.search-container{width:100%;max-width:680px}
+.search-input-wrap{display:flex;align-items:stretch;background:var(--bg2);border:1.5px solid var(--border2);border-radius:var(--rad-lg);overflow:hidden;transition:border-color .2s,box-shadow .2s;margin-bottom:16px}
+.search-input-wrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,229,255,.1),0 0 30px rgba(0,229,255,.05)}
+.search-hash{font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--accent);padding:0 16px;display:flex;align-items:center;border-right:1px solid var(--border2);background:rgba(0,229,255,.04)}
+.search-input{flex:1;background:none;border:none;outline:none;font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--text);padding:16px 18px;letter-spacing:.5px}
+.search-input::placeholder{color:var(--muted);font-weight:400}
+.search-btn{background:var(--accent);color:var(--bg);font-family:var(--font-display);font-size:16px;font-weight:800;letter-spacing:.5px;border:none;padding:0 28px;cursor:pointer;transition:all .2s;white-space:nowrap;text-transform:uppercase}
+.search-btn:hover{background:#33eaff;box-shadow:0 0 20px rgba(0,229,255,.4)}
+.search-btn:active{transform:scaleX(.98)}
+
+.hint-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:32px}
+.hint-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.hint-chip{font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);color:var(--muted2);cursor:pointer;transition:all .2s;background:var(--bg2)}
+.hint-chip:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,229,255,.06)}
+
+.source-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rad-lg);padding:20px;width:100%;max-width:680px}
+.sp-title{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.source-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.src-toggle{border:1px solid var(--border);border-radius:var(--rad);padding:12px 10px;cursor:pointer;transition:all .2s;text-align:center;background:var(--bg3)}
+.src-toggle.on{border-color:var(--accent);background:rgba(0,229,255,.06)}
+.src-toggle .si{font-size:18px;margin-bottom:4px}
+.src-toggle .sn{font-size:12px;font-weight:600;color:var(--text)}
+.src-toggle .sd{font-size:10px;color:var(--muted);margin-top:2px}
+.src-toggle.on .sn{color:var(--accent)}
+.api-panel{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+.api-field{display:flex;flex-direction:column;gap:6px}
+.api-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.api-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad);color:var(--text);font-family:var(--font-body);font-size:12px;padding:10px 12px;outline:none}
+.api-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,229,255,.08)}
+.api-note{grid-column:1/-1;font-size:11px;line-height:1.5;color:var(--muted)}
+
+/* ═══════════════════════════════════════ COLLECTING VIEW ═══ */
+#collectView{padding:40px 32px;max-width:900px;margin:0 auto}
+.cv-header{text-align:center;margin-bottom:40px}
+.cv-hashtag{font-family:var(--font-display);font-size:56px;font-weight:900;color:var(--accent);text-shadow:0 0 40px rgba(0,229,255,.3);margin-bottom:6px}
+.cv-sub{font-size:14px;color:var(--muted2)}
+
+.src-status-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
+.ss-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rad);padding:16px;text-align:center;transition:all .4s}
+.ss-card.active{border-color:var(--accent);background:rgba(0,229,255,.05);box-shadow:0 0 16px rgba(0,229,255,.08)}
+.ss-card.done{border-color:var(--pos);background:var(--pos-bg)}
+.ss-card.error{border-color:var(--neg);background:var(--neg-bg)}
+.ss-icon{font-size:24px;margin-bottom:8px}
+.ss-name{font-size:12px;font-weight:600;color:var(--muted2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.ss-count{font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--muted);line-height:1}
+.ss-card.done .ss-count{color:var(--pos)}
+.ss-card.active .ss-count{color:var(--accent)}
+.ss-state{font-size:10px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+
+.real-mix{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rad);padding:16px;margin-bottom:18px}
+.real-mix-title{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.real-mix-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.real-source{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad);padding:12px}
+.real-source-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.real-source-name{font-size:12px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px}
+.real-source-count{font-family:var(--font-display);font-size:24px;font-weight:900;color:var(--text)}
+.real-track{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.real-fill{height:100%;border-radius:3px;width:0%;transition:width .4s ease}
+.real-pct{font-family:var(--font-display);font-size:18px;font-weight:900;color:var(--accent)}
+.real-note{font-size:10px;color:var(--muted);margin-top:10px;text-transform:uppercase;letter-spacing:.5px}
+
+.log-terminal{background:#050912;border:1px solid var(--border);border-radius:var(--rad);padding:16px;margin-bottom:20px;font-family:'Courier New',monospace;font-size:11px;line-height:1.9;height:220px;overflow-y:auto}
+.log-terminal .line-ok{color:var(--pos)}
+.log-terminal .line-err{color:var(--neg)}
+.log-terminal .line-info{color:var(--accent)}
+.log-terminal .line-data{color:var(--muted2)}
+
+.prog-outer{display:flex;align-items:center;gap:12px}
+.prog-track{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;width:0%;transition:width .5s ease;box-shadow:0 0 8px rgba(0,229,255,.4)}
+.prog-pct{font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--accent);min-width:44px;text-align:right}
+
+/* ═══════════════════════════════════════ RESULTS VIEW ═══ */
+#resultsView{padding:28px 32px 80px;max-width:1100px;margin:0 auto}
+
+.res-topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px}
+.res-hashtag{font-family:var(--font-display);font-size:44px;font-weight:900;line-height:1;color:var(--accent)}
+.res-sub{font-size:13px;color:var(--muted2);margin-top:5px}
+.btn-back{font-family:var(--font-display);font-size:14px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:9px 18px;border:1px solid var(--border2);border-radius:var(--rad);background:var(--bg2);color:var(--muted2);cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-back:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Verdict */
+.verdict{border-radius:var(--rad-lg);padding:20px 24px;margin-bottom:20px;border:1px solid;position:relative;overflow:hidden}
+.verdict::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.verdict-pos{background:var(--pos-bg);border-color:rgba(0,214,143,.3)}
+.verdict-pos::before{background:linear-gradient(90deg,var(--pos),transparent)}
+.verdict-neg{background:var(--neg-bg);border-color:rgba(255,71,87,.3)}
+.verdict-neg::before{background:linear-gradient(90deg,var(--neg),transparent)}
+.verdict-mix{background:rgba(255,184,0,.05);border-color:rgba(255,184,0,.3)}
+.verdict-mix::before{background:linear-gradient(90deg,var(--accent3),transparent)}
+.vt{font-family:var(--font-display);font-size:20px;font-weight:800;margin-bottom:6px;letter-spacing:.3px}
+.vb{font-size:13px;line-height:1.7;color:var(--muted2)}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rad);padding:16px;text-align:center;position:relative;overflow:hidden}
+.stat-box::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.stat-pos::after{background:var(--pos)}.stat-neg::after{background:var(--neg)}.stat-neu::after{background:var(--neu)}.stat-avg::after{background:var(--accent)}
+.stat-val{font-family:var(--font-display);font-size:36px;font-weight:900;line-height:1}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.6px}
+.sv-pos{color:var(--pos)}.sv-neg{color:var(--neg)}.sv-neu{color:var(--neu)}.sv-acc{color:var(--accent)}
+
+/* Card */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rad-lg);padding:20px;margin-bottom:16px}
+.card-title{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+
+/* Dist bars */
+.dbar{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.dbl{min-width:70px;font-size:13px;font-weight:600;color:var(--text)}
+.dbt{flex:1;height:12px;background:var(--bg3);border-radius:6px;overflow:hidden}
+.dbf{height:100%;border-radius:6px;transition:width .8s cubic-bezier(.16,1,.3,1)}
+.dbf-pos{background:linear-gradient(90deg,var(--pos),#00f5aa)}
+.dbf-neg{background:linear-gradient(90deg,var(--neg),#ff6b7a)}
+.dbf-neu{background:linear-gradient(90deg,var(--neu),#aab4c4)}
+.dbp{min-width:40px;text-align:right;font-family:var(--font-display);font-size:16px;font-weight:700}
+
+/* Source breakdown */
+.sb-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sb-ic{font-size:16px;width:26px;text-align:center}
+.sb-nm{min-width:120px;font-size:12px;font-weight:600;color:var(--muted2)}
+.sb-bars{flex:1;display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px}
+.sb-seg{height:100%;transition:width .6s ease}
+.sb-info{font-size:11px;color:var(--muted);min-width:80px;text-align:right}
+
+/* Metrics */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.metric{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad);padding:14px;text-align:center}
+.mval{font-family:var(--font-display);font-size:28px;font-weight:800}
+.mlbl{font-size:10px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.msub{font-size:11px;color:var(--muted2);margin-top:4px}
+
+/* Emotions */
+.emo-grid{display:flex;flex-wrap:wrap;gap:8px}
+.emo-pill{font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;border:1px solid;letter-spacing:.3px}
+
+/* Keywords */
+.kw-cloud{display:flex;flex-wrap:wrap;gap:7px}
+.kw{font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;letter-spacing:.2px}
+.kp{background:rgba(0,214,143,.12);color:#00d68f;border:1px solid rgba(0,214,143,.25)}
+.kn{background:rgba(255,71,87,.12);color:#ff4757;border:1px solid rgba(255,71,87,.25)}
+
+/* Charts */
+.chart-wrap{position:relative}
+
+/* Item cards */
+.item-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rad);overflow:hidden;margin-bottom:10px;transition:border-color .2s}
+.item-card:hover{border-color:var(--border2)}
+.ic-top{padding:13px 15px;display:flex;gap:10px}
+.ic-body{flex:1}
+.ic-text{font-size:13px;line-height:1.6;color:var(--text);margin-bottom:6px}
+.ic-meta{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.src-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:.3px;text-transform:uppercase}
+.sb-reddit{background:rgba(255,69,0,.15);color:#ff4500;border:1px solid rgba(255,69,0,.3)}
+.sb-reddit_comment{background:rgba(255,69,0,.1);color:#ff6534;border:1px solid rgba(255,101,52,.3)}
+.sb-x_tweet{background:rgba(0,229,255,.1);color:var(--accent);border:1px solid rgba(0,229,255,.25)}
+.ic-emo{font-size:11px;color:var(--muted2)}
+.ic-eng{font-size:11px;color:var(--muted)}
+.ic-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.spill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;text-transform:uppercase;letter-spacing:.4px}
+.spill-p{background:var(--pos-bg);color:var(--pos);border:1px solid rgba(0,214,143,.3)}
+.spill-n{background:var(--neg-bg);color:var(--neg);border:1px solid rgba(255,71,87,.3)}
+.spill-e{background:var(--neu-bg);color:var(--neu);border:1px solid rgba(136,146,164,.2)}
+.comp-val{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--muted)}
+.ic-scores{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+.ic-sc{background:var(--bg3);padding:8px;text-align:center}
+.ic-sv{font-family:var(--font-display);font-size:20px;font-weight:800}
+.ic-sl{font-size:10px;color:var(--muted);margin-top:1px;text-transform:uppercase;letter-spacing:.4px}
+.conf-strip{padding:7px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.conf-track{flex:1;height:3px;background:var(--bg);border-radius:2px;overflow:hidden}
+.conf-fill{height:100%;border-radius:2px}
+.conf-label{font-size:10px;color:var(--muted);min-width:80px;text-transform:uppercase;letter-spacing:.4px}
+.sar-badge{font-size:10px;font-weight:700;background:rgba(255,184,0,.12);color:var(--accent3);padding:2px 7px;border-radius:4px;border:1px solid rgba(255,184,0,.3);margin-left:4px;text-transform:uppercase}
+.int-high{font-size:10px;font-weight:700;background:var(--neg-bg);color:var(--neg);padding:2px 6px;border-radius:4px;border:1px solid rgba(255,71,87,.25);text-transform:uppercase}
+
+/* Top engaged */
+.te-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.te-item:last-child{border-bottom:none}
+.te-rank{font-family:var(--font-display);font-size:22px;font-weight:900;color:var(--muted);width:28px;flex-shrink:0;line-height:1}
+.te-body{flex:1}
+.te-text{font-size:13px;line-height:1.5;color:var(--text);margin-bottom:4px}
+.te-meta{display:flex;gap:10px;font-size:11px;color:var(--muted)}
+.te-right{flex-shrink:0;text-align:right}
+
+/* Sarcasm */
+.sar-item{font-size:13px;padding:10px 0;border-bottom:1px solid var(--border);color:var(--muted2);line-height:1.6}
+.sar-item:last-child{border-bottom:none}
+
+/* Filter buttons */
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.fbtn{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:5px 12px;border:1px solid var(--border2);border-radius:4px;background:var(--bg3);color:var(--muted);cursor:pointer;transition:all .2s}
+.fbtn:hover{border-color:var(--accent);color:var(--accent)}
+.fbtn.on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+
+/* Insight box */
+.insight-box{background:var(--bg3);border:1px solid rgba(0,229,255,.2);border-radius:var(--rad-lg);padding:20px;border-left:3px solid var(--accent)}
+.insight-text{font-size:14px;line-height:1.85;color:var(--muted2)}
+
+/* Export button */
+.btn-export{font-family:var(--font-display);font-size:14px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:11px 24px;border:none;border-radius:var(--rad);background:linear-gradient(135deg,var(--accent),#0096b0);color:var(--bg);cursor:pointer;transition:all .2s;flex:1}
+.btn-export:hover{box-shadow:0 0 20px rgba(0,229,255,.3);transform:translateY(-1px)}
+.action-row{display:flex;gap:10px;margin-top:8px}
+
+/* Responsive */
+@media(max-width:700px){
+  .source-row,.src-status-row,.stats-row,.metrics-grid,.two-col,.three-col{grid-template-columns:1fr 1fr}
+  .real-mix-grid{grid-template-columns:1fr}
+  .api-panel{grid-template-columns:1fr}
+  #resultsView,#collectView{padding:20px 16px 60px}
+  .res-hashtag{font-size:32px}
+  header{padding:0 16px}
+  .header-tags{display:none}
+}
+@media(max-width:440px){
+  .stats-row,.metrics-grid{grid-template-columns:1fr 1fr}
+  .source-row{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-hash">#</span><span class="logo-word">HashPulse</span>
+    <span class="logo-dot"></span>
+  </div>
+  <div class="header-tags">
+    <span class="htag htag-r">Reddit</span>
+    <span class="htag htag-t">X/Twitter</span>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════ SEARCH VIEW ═══ -->
+<div class="view active" id="searchView" style="">
+  <div class="hero-section">
+    <div class="hero-eyebrow">Sports Sentiment Intelligence</div>
+    <h1 class="hero-title">
+      <div class="line1">TRACK THE</div>
+      <div class="line2">PULSE</div>
+    </h1>
+    <p class="hero-subtitle">Enter any sports hashtag — collect Reddit-style and Twitter/X-style fan comments with player mentions, then analyse sentiment instantly.</p>
+  </div>
+
+  <div class="search-container">
+    <div class="search-input-wrap">
+      <div class="search-hash">#</div>
+      <input class="search-input" id="hashInput" placeholder="CSK  Arsenal  NBAFinals  Messi" autocomplete="off" onkeydown="if(event.key===&#39;Enter&#39;)go()">
+      <button class="search-btn" onclick="go()">Analyse →</button>
+    </div>
+    <div class="hint-row">
+      <span class="hint-label">Try:</span>
+      <span class="hint-chip" onclick="setQ(&#39;CSK&#39;)">CSK</span>
+      <span class="hint-chip" onclick="setQ(&#39;Arsenal&#39;)">Arsenal</span>
+      <span class="hint-chip" onclick="setQ(&#39;NBAFinals&#39;)">NBAFinals</span>
+      <span class="hint-chip" onclick="setQ(&#39;FIFA2026&#39;)">FIFA2026</span>
+      <span class="hint-chip" onclick="setQ(&#39;RCB&#39;)">RCB</span>
+      <span class="hint-chip" onclick="setQ(&#39;LeBron&#39;)">LeBron</span>
+      <span class="hint-chip" onclick="setQ(&#39;Ronaldo&#39;)">Ronaldo</span>
+    </div>
+
+    <div class="source-panel">
+      <div class="sp-title">Sources</div>
+      <div class="source-row">
+        <div class="src-toggle on" id="st-reddit" onclick="toggleSrc(&#39;reddit&#39;,this)">
+          <div class="si">🟠</div><div class="sn">Reddit</div><div class="sd">Free · No key</div>
+        </div>
+        <div class="src-toggle on" id="st-x" onclick="toggleSrc(&#39;x&#39;,this)">
+          <div class="si">𝕏</div><div class="sn">Twitter/X</div><div class="sd">Fan comments</div>
+        </div>
+      </div>
+      <div class="api-panel">
+        <div class="api-note">Comments are produced for the selected Reddit and Twitter/X source lanes after you enter a hashtag.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ COLLECT VIEW ═══ -->
+<div class="view" id="collectView" style="">
+  <div class="cv-header">
+    <div class="cv-hashtag" id="cvHash">#Arsenal</div>
+    <div class="cv-sub">Collecting from all sources…</div>
+  </div>
+  <div class="src-status-row" id="srcStatusRow">
+    <div class="ss-card done" id="ss-reddit">
+      <div class="ss-icon">🟠</div>
+      <div class="ss-name">Reddit</div>
+      <div class="ss-count">10</div>
+      <div class="ss-state">Done</div>
+    </div>
+    <div class="ss-card done" id="ss-x">
+      <div class="ss-icon">𝕏</div>
+      <div class="ss-name">Twitter/X</div>
+      <div class="ss-count">9</div>
+      <div class="ss-state">Done</div>
+    </div></div>
+  <div class="real-mix" id="realMix">
+    <div class="real-mix-title">Comment Source Mix</div>
+    <div class="real-mix-grid">
+      <div class="real-source">
+        <div class="real-source-top">
+          <span class="real-source-name">Reddit</span>
+          <span class="real-pct" id="realPctReddit">53%</span>
+        </div>
+        <div class="real-source-count" id="realCountReddit">10 comments</div>
+        <div class="real-track"><div class="real-fill" id="realFillReddit" style="background: rgb(255, 69, 0); width: 53%;"></div></div>
+      </div>
+      <div class="real-source">
+        <div class="real-source-top">
+          <span class="real-source-name">Twitter/X</span>
+          <span class="real-pct" id="realPctX">47%</span>
+        </div>
+        <div class="real-source-count" id="realCountX">9 comments</div>
+        <div class="real-track"><div class="real-fill" id="realFillX" style="background: var(--accent); width: 47%;"></div></div>
+      </div>
+    </div>
+    <div class="real-note">Percentages use only Reddit and Twitter/X comment counts.</div>
+  </div>
+  <div class="log-terminal" id="logTerminal"><span class="line-info">[START] Hashtag: #Arsenal
+</span><span class="line-info">[INFO]  Sources: reddit, x
+</span><span class="line-data">[REDDIT] Collecting Reddit-style fan comments…
+</span><span class="line-data">[REDDIT] Reading match threads, fan replies and player mentions…
+</span><span class="line-data">[REDDIT] Collected 10 comments
+</span><span class="line-data">[X]      Collecting Twitter/X-style fan comments…
+</span><span class="line-data">[X]      Sampling timeline reactions, reposts and player mentions…
+</span><span class="line-data">[X]      Collected 9 comments
+</span><span class="line-data">[PIPELINE] Total items: 19 — running ML sentiment model…
+</span><span class="line-ok">[OK]  Analysis complete. Positive: 12  Negative: 6  Neutral: 1
+</span></div>
+  <div class="prog-outer">
+    <div class="prog-track"><div class="prog-bar" id="progBar" style="width: 100%;"></div></div>
+    <div class="prog-pct" id="progPct">100%</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ RESULTS VIEW ═══ -->
+<div class="view" id="resultsView" style="display: none;">
+  <div class="res-topbar">
+    <div>
+      <div class="res-hashtag" id="resHash">#Arsenal</div>
+      <div class="res-sub" id="resSub">19 items across 2 sources · ML classifier</div>
+    </div>
+    <button class="btn-back" onclick="showView(&#39;searchView&#39;)">← New Search</button>
+  </div>
+
+  <div id="verdictBox"><div class="verdict verdict-pos"><div class="vt">✅ Predominantly Positive</div><div class="vb">63% of content is positive — fans are slightly enthusiastic. Average compound score: +0.175.</div></div></div>
+
+  <div class="stats-row">
+    <div class="stat-box stat-pos"><div class="stat-val sv-pos" id="stPos">12</div><div class="stat-lbl">Positive</div></div>
+    <div class="stat-box stat-neg"><div class="stat-val sv-neg" id="stNeg">6</div><div class="stat-lbl">Negative</div></div>
+    <div class="stat-box stat-neu"><div class="stat-val sv-neu" id="stNeu">1</div><div class="stat-lbl">Neutral</div></div>
+    <div class="stat-box stat-avg"><div class="stat-val sv-acc" id="stAvg">+0.175</div><div class="stat-lbl">Avg Score</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Sentiment Distribution</div>
+    <div class="dbar"><span class="dbl">Positive</span><div class="dbt"><div class="dbf dbf-pos" id="bPos" style="width: 63%;"></div></div><span class="dbp sv-pos" id="pPos">63%</span></div>
+    <div class="dbar"><span class="dbl">Negative</span><div class="dbt"><div class="dbf dbf-neg" id="bNeg" style="width: 32%;"></div></div><span class="dbp sv-neg" id="pNeg">32%</span></div>
+    <div class="dbar"><span class="dbl">Neutral</span> <div class="dbt"><div class="dbf dbf-neu" id="bNeu" style="width: 5%;"></div></div><span class="dbp sv-neu" id="pNeu">5%</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">By Source</div>
+    <div id="srcBreakdown"><div class="sb-row">
+      <span class="sb-ic">🟠</span>
+      <span class="sb-nm">Reddit</span>
+      <div class="sb-bars">
+        <div class="sb-seg" style="width:0%;background:var(--pos)" title="Pos 0%"></div>
+        <div class="sb-seg" style="width:100%;background:var(--neu)" title="Neu 100%"></div>
+        <div class="sb-seg" style="width:0%;background:var(--neg)" title="Neg 0%"></div>
+      </div>
+      <span class="sb-info">10 (53%) · +0.21</span>
+    </div><div class="sb-row">
+      <span class="sb-ic">𝕏</span>
+      <span class="sb-nm">Twitter/X</span>
+      <div class="sb-bars">
+        <div class="sb-seg" style="width:0%;background:var(--pos)" title="Pos 0%"></div>
+        <div class="sb-seg" style="width:100%;background:var(--neu)" title="Neu 100%"></div>
+        <div class="sb-seg" style="width:0%;background:var(--neg)" title="Neg 0%"></div>
+      </div>
+      <span class="sb-info">9 (47%) · +0.136</span>
+    </div></div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Distribution</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="distChart" height="400" style="display: block; box-sizing: border-box; height: 200px; width: 468px;" width="936"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Source Comparison</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="srcChart" height="400" style="display: block; box-sizing: border-box; height: 200px; width: 468px;" width="936"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Key Metrics</div>
+    <div class="metrics-grid" id="keyMetrics"><div class="metric"><div class="mval sv-pos" style="">+0.175</div><div class="mlbl">Avg Compound</div><div class="msub">Near neutral</div></div><div class="metric"><div class="mval sv-acc" style="">13</div><div class="mlbl">High Confidence</div><div class="msub">Above 75% threshold</div></div><div class="metric"><div class="mval " style="color:var(--accent3)">0</div><div class="mlbl">Sarcasm Detected</div><div class="msub">Irony identified</div></div><div class="metric"><div class="mval sv-neg" style="">12</div><div class="mlbl">High Intensity</div><div class="msub">Strong language</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Emotion Profile</div>
+    <div class="emo-grid" id="emoGrid"><span class="emo-pill" style="background:rgba(0,214,143,.12);color:var(--pos);border-color:rgba(0,214,143,.3)">excited <strong>5</strong></span><span class="emo-pill" style="background:rgba(136,146,164,.08);color:var(--neu);border-color:rgba(136,146,164,.2)">neutral <strong>4</strong></span><span class="emo-pill" style="background:rgba(0,229,255,.1);color:var(--accent);border-color:rgba(0,229,255,.25)">proud <strong>4</strong></span><span class="emo-pill" style="background:rgba(255,71,87,.12);color:var(--neg);border-color:rgba(255,71,87,.3)">angry <strong>2</strong></span><span class="emo-pill" style="background:rgba(255,71,87,.08);color:#ff6b7a;border-color:rgba(255,71,87,.2)">disappointed <strong>2</strong></span><span class="emo-pill" style="background:rgba(255,184,0,.1);color:var(--accent3);border-color:rgba(255,184,0,.3)">frustrated <strong>1</strong></span><span class="emo-pill" style="background:rgba(0,214,143,.08);color:#00b87a;border-color:rgba(0,214,143,.2)">happy <strong>1</strong></span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Engagement × Sentiment</div>
+    <div class="chart-wrap" style="height:220px"><canvas id="engChart" height="440" style="display: block; box-sizing: border-box; height: 220px; width: 994px;" width="1988"></canvas></div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Positive Keywords</div>
+      <div class="kw-cloud" id="posCloud"><span class="kw kp">arsenal <span style="opacity:.5;font-size:10px">12</span></span><span class="kw kp">saka <span style="opacity:.5;font-size:10px">5</span></span><span class="kw kp">salah <span style="opacity:.5;font-size:10px">4</span></span><span class="kw kp">messi <span style="opacity:.5;font-size:10px">2</span></span><span class="kw kp">back <span style="opacity:.5;font-size:10px">2</span></span><span class="kw kp">best <span style="opacity:.5;font-size:10px">2</span></span><span class="kw kp">minutes <span style="opacity:.5;font-size:10px">2</span></span><span class="kw kp">player <span style="opacity:.5;font-size:10px">2</span></span><span class="kw kp">keeps <span style="opacity:.5;font-size:10px">1</span></span><span class="kw kp">form <span style="opacity:.5;font-size:10px">1</span></span><span class="kw kp">real <span style="opacity:.5;font-size:10px">1</span></span><span class="kw kp">shot <span style="opacity:.5;font-size:10px">1</span></span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Negative Keywords</div>
+      <div class="kw-cloud" id="negCloud"><span class="kw kn">arsenal <span style="opacity:.5;font-size:10px">6</span></span><span class="kw kn">ronaldo <span style="opacity:.5;font-size:10px">3</span></span><span class="kw kn">suddenly <span style="opacity:.5;font-size:10px">2</span></span><span class="kw kn">over <span style="opacity:.5;font-size:10px">2</span></span><span class="kw kn">call <span style="opacity:.5;font-size:10px">1</span></span><span class="kw kn">changed <span style="opacity:.5;font-size:10px">1</span></span><span class="kw kn">everything <span style="opacity:.5;font-size:10px">1</span></span><span class="kw kn">usually <span style="opacity:.5;font-size:10px">1</span></span><span class="kw kn">blame <span style="opacity:.5;font-size:10px">1</span></span><span class="kw kn">refs <span style="opacity:.5;font-size:10px">1</span></span><span class="kw kn">awful <span style="opacity:.5;font-size:10px">1</span></span><span class="kw kn">someone <span style="opacity:.5;font-size:10px">1</span></span></div>
+    </div>
+  </div>
+
+  <div id="sarcasmSec" style="display:none">
+    <div class="card" style="border-color:rgba(255,184,0,.3);background:rgba(255,184,0,.04)">
+      <div class="card-title">⚠ Sarcasm Detected</div>
+      <div id="sarcasmList"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Most Engaged Posts</div>
+    <div id="topEngaged"><div class="te-item">
+      <div class="te-rank">1</div>
+      <div class="te-body">
+        <div class="te-text">That Saka clip is going straight into every fan edit tonight 😭 #Arsenal</div>
+        <div class="te-meta"><span>Twitter/X</span><span>1,575 likes</span> <span>906 shares</span></div>
+      </div>
+      <div class="te-right"><span class="spill spill-p">positive</span></div>
+    </div><div class="te-item">
+      <div class="te-rank">2</div>
+      <div class="te-body">
+        <div class="te-text">The Saka to Salah connection finally looked natural today. More of that please. #Arsenal</div>
+        <div class="te-meta"><span>Twitter/X</span><span>1,823 likes</span> <span>232 shares</span></div>
+      </div>
+      <div class="te-right"><span class="spill spill-p">positive</span></div>
+    </div><div class="te-item">
+      <div class="te-rank">3</div>
+      <div class="te-body">
+        <div class="te-text">Why was Salah left 1v2 over and over?? Tactics made no sense. #Arsenal</div>
+        <div class="te-meta"><span>Twitter/X</span><span>1,136 likes</span> <span>414 shares</span></div>
+      </div>
+      <div class="te-right"><span class="spill spill-n">negative</span></div>
+    </div><div class="te-item">
+      <div class="te-rank">4</div>
+      <div class="te-body">
+        <div class="te-text">Messi heard the noise and answered on the pitch. Big player moment. #Arsenal</div>
+        <div class="te-meta"><span>Twitter/X</span><span>1,479 likes</span> <span>235 shares</span></div>
+      </div>
+      <div class="te-right"><span class="spill spill-p">positive</span></div>
+    </div><div class="te-item">
+      <div class="te-rank">5</div>
+      <div class="te-body">
+        <div class="te-text">Nah that miss from Ronaldo was painful. You have to finish those at this level. #Arsenal</div>
+        <div class="te-meta"><span>Twitter/X</span><span>1,387 likes</span> <span>264 shares</span></div>
+      </div>
+      <div class="te-right"><span class="spill spill-n">negative</span></div>
+    </div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI Analysis Summary</div>
+    <div class="insight-box"><div class="insight-text" id="insightText">Across 19 items collected from 2 sources, fan sentiment for #Arsenal is slightly positive — 63% of content is positive with an average compound score of +0.175. The dominant fan emotion is "excited" with 12 high-intensity comments showing especially strong language use. No sarcasm was detected across sources — fans expressed their views directly. Recommendation: Positive fan sentiment is strong — teams and brands should capitalise with interactive social content and community engagement.</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Explorer</div>
+    <div class="filter-bar" id="filterBar">
+      <button class="fbtn on" onclick="filterBy(&#39;all&#39;,this)">All</button>
+      <button class="fbtn" onclick="filterBy(&#39;positive&#39;,this)">Positive</button>
+      <button class="fbtn" onclick="filterBy(&#39;negative&#39;,this)">Negative</button>
+      <button class="fbtn" onclick="filterBy(&#39;neutral&#39;,this)">Neutral</button>
+      <button class="fbtn" onclick="filterBy(&#39;reddit&#39;,this)">Reddit</button>
+      <button class="fbtn" onclick="filterBy(&#39;x_&#39;,this)">Twitter/X</button>
+    </div>
+    <div id="itemList"><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">Honestly a fair result. #Arsenal had chances, Saka had moments, but neither side really controlled it.</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-reddit_comment">Reddit</span>
+            <span class="ic-emo" style="color:var(--neu)">neutral</span>
+            
+            <span class="ic-eng">190 likes</span>
+            <span class="ic-eng">38 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-e">neutral</span>
+          <span class="comp-val">+0.00</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">22%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">56%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">22%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 55%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:55%;background:var(--neu)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">That call on Ronaldo changed everything. I usually don't blame refs but that one was awful for #Arsenal.</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-reddit_comment">Reddit</span>
+            <span class="ic-emo" style="color:var(--neg)">angry</span>
+            <span class="int-high">high intensity</span>
+            <span class="ic-eng">937 likes</span>
+            <span class="ic-eng">125 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-n">negative</span>
+          <span class="comp-val">-0.86</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">7%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">5%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">88%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 89%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:89%;background:var(--neg)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">If Messi keeps this form, #Arsenal has a real shot. The confidence is back and you can see it.</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-reddit_comment">Reddit</span>
+            <span class="ic-emo" style="color:var(--pos)">proud</span>
+            <span class="int-high">high intensity</span>
+            <span class="ic-eng">790 likes</span>
+            <span class="ic-eng">79 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-p">positive</span>
+          <span class="comp-val">+0.63</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">78%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">11%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">11%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 80%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:80%;background:var(--pos)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">Best #Arsenal performance in a while. Ronaldo was everywhere, even the small off-ball stuff was class.</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-reddit_comment">Reddit</span>
+            <span class="ic-emo" style="color:var(--pos)">excited</span>
+            <span class="int-high">high intensity</span>
+            <span class="ic-eng">698 likes</span>
+            <span class="ic-eng">115 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-p">positive</span>
+          <span class="comp-val">+0.88</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">89%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">4%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">7%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 90%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:90%;background:var(--pos)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">That little touch from Saka before the break was filthy. Had to rewind it twice. #Arsenal</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-reddit_comment">Reddit</span>
+            <span class="ic-emo" style="color:var(--pos)">excited</span>
+            
+            <span class="ic-eng">1,063 likes</span>
+            <span class="ic-eng">143 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-p">positive</span>
+          <span class="comp-val">+0.49</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">71%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">16%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">13%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 74%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:74%;background:var(--pos)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">Can someone explain what happened with Messi? Looked sharp, then suddenly disappeared from the plan. #Arsenal</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-reddit_comment">Reddit</span>
+            <span class="ic-emo" style="color:var(--neg)">disappointed</span>
+            
+            <span class="ic-eng">334 likes</span>
+            <span class="ic-eng">58 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-n">negative</span>
+          <span class="comp-val">-0.50</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">13%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">15%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">72%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 75%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:75%;background:var(--neg)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">As a neutral, #Arsenal was basically 20 minutes of chaos, 20 minutes of control, then vibes. Saka was the difference.</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-reddit_comment">Reddit</span>
+            <span class="ic-emo" style="color:var(--pos)">neutral</span>
+            
+            <span class="ic-eng">175 likes</span>
+            <span class="ic-eng">25 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-p">positive</span>
+          <span class="comp-val">+0.17</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">58%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">25%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">17%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 62%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:62%;background:var(--pos)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">Stadium sounded ridiculous on the broadcast. When Salah started waving the crowd on, you knew #Arsenal had momentum.</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-reddit_comment">Reddit</span>
+            <span class="ic-emo" style="color:var(--pos)">proud</span>
+            <span class="int-high">high intensity</span>
+            <span class="ic-eng">886 likes</span>
+            <span class="ic-eng">137 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-p">positive</span>
+          <span class="comp-val">+0.67</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">79%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">11%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">10%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 82%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:82%;background:var(--pos)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">The meltdown in here is funny. Haaland misses one chance and suddenly half the thread wants a rebuild. #Arsenal</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-reddit_comment">Reddit</span>
+            <span class="ic-emo" style="color:var(--neg)">neutral</span>
+            
+            <span class="ic-eng">342 likes</span>
+            <span class="ic-eng">58 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-n">negative</span>
+          <span class="comp-val">-0.17</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">17%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">26%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">57%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 62%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:62%;background:var(--neg)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">Credit where it's due: the coach actually adjusted today. Salah pressing higher made #Arsenal look alive again.</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-reddit_comment">Reddit</span>
+            <span class="ic-emo" style="color:var(--pos)">proud</span>
+            <span class="int-high">high intensity</span>
+            <span class="ic-eng">558 likes</span>
+            <span class="ic-eng">136 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-p">positive</span>
+          <span class="comp-val">+0.78</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">84%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">8%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">8%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 86%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:86%;background:var(--pos)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">Why was Salah left 1v2 over and over?? Tactics made no sense. #Arsenal</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-x_tweet">Twitter/X</span>
+            <span class="ic-emo" style="color:var(--neg)">angry</span>
+            <span class="int-high">high intensity</span>
+            <span class="ic-eng">1,136 likes</span>
+            <span class="ic-eng">414 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-n">negative</span>
+          <span class="comp-val">-0.75</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">9%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">8%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">83%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 85%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:85%;background:var(--neg)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">Messi heard the noise and answered on the pitch. Big player moment. #Arsenal</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-x_tweet">Twitter/X</span>
+            <span class="ic-emo" style="color:var(--pos)">excited</span>
+            <span class="int-high">high intensity</span>
+            <span class="ic-eng">1,479 likes</span>
+            <span class="ic-eng">235 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-p">positive</span>
+          <span class="comp-val">+0.64</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">78%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">12%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">10%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 80%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:80%;background:var(--pos)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">Stop putting all this on Ronaldo. The whole shape was off from minute one. #Arsenal</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-x_tweet">Twitter/X</span>
+            <span class="ic-emo" style="color:var(--neg)">frustrated</span>
+            <span class="int-high">high intensity</span>
+            <span class="ic-eng">810 likes</span>
+            <span class="ic-eng">245 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-n">negative</span>
+          <span class="comp-val">-0.60</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">11%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">13%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">76%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 79%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:79%;background:var(--neg)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">Lowkey Salah was the best player out there and nobody is talking about it. #Arsenal</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-x_tweet">Twitter/X</span>
+            <span class="ic-emo" style="color:var(--pos)">proud</span>
+            
+            <span class="ic-eng">506 likes</span>
+            <span class="ic-eng">243 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-p">positive</span>
+          <span class="comp-val">+0.43</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">69%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">18%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">13%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 72%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:72%;background:var(--pos)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">Timeline can't decide if #Arsenal is back or finished. Probably both somehow.</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-x_tweet">Twitter/X</span>
+            <span class="ic-emo" style="color:var(--pos)">neutral</span>
+            
+            <span class="ic-eng">448 likes</span>
+            <span class="ic-eng">57 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-p">positive</span>
+          <span class="comp-val">+0.10</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">55%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">27%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">18%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 59%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:59%;background:var(--pos)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">The way Saka reacted after full time got me. This one clearly meant a lot. #Arsenal</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-x_tweet">Twitter/X</span>
+            <span class="ic-emo" style="color:var(--pos)">excited</span>
+            <span class="int-high">high intensity</span>
+            <span class="ic-eng">991 likes</span>
+            <span class="ic-eng">293 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-p">positive</span>
+          <span class="comp-val">+0.64</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">78%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">12%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">10%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 80%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:80%;background:var(--pos)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">The Saka to Salah connection finally looked natural today. More of that please. #Arsenal</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-x_tweet">Twitter/X</span>
+            <span class="ic-emo" style="color:var(--pos)">happy</span>
+            <span class="int-high">high intensity</span>
+            <span class="ic-eng">1,823 likes</span>
+            <span class="ic-eng">232 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-p">positive</span>
+          <span class="comp-val">+0.69</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">81%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">9%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">10%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 83%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:83%;background:var(--pos)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">That Saka clip is going straight into every fan edit tonight 😭 #Arsenal</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-x_tweet">Twitter/X</span>
+            <span class="ic-emo" style="color:var(--pos)">excited</span>
+            <span class="int-high">high intensity</span>
+            <span class="ic-eng">1,575 likes</span>
+            <span class="ic-eng">906 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-p">positive</span>
+          <span class="comp-val">+0.76</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">84%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">7%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">9%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 85%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:85%;background:var(--pos)"></div></div>
+      </div>
+    </div><div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">Nah that miss from Ronaldo was painful. You have to finish those at this level. #Arsenal</div>
+          <div class="ic-meta">
+            <span class="src-badge sb-x_tweet">Twitter/X</span>
+            <span class="ic-emo" style="color:var(--neg)">disappointed</span>
+            <span class="int-high">high intensity</span>
+            <span class="ic-eng">1,387 likes</span>
+            <span class="ic-eng">264 shares</span>
+            
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill spill-n">negative</span>
+          <span class="comp-val">-0.69</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">10%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">10%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">80%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence 83%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:83%;background:var(--neg)"></div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="action-row">
+    <button class="btn-back" onclick="showView(&#39;searchView&#39;)" style="flex:1">← New Search</button>
+    <button class="btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════ STATE ═══ */
+const sources = new Set(['reddit','x']);
+let allItems  = [];
+let charts    = {};
+
+/* ═══════════════════════════════════════ HELPERS ═══ */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>{
+    v.classList.remove('active');
+    if(v.id!=='searchView') v.style.display='';
+    else v.style.display='none';
+  });
+  const el=document.getElementById(id);
+  el.style.display= id==='searchView'?'flex':'block';
+  el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function setQ(h){ document.getElementById('hashInput').value=h; }
+
+function esc(value){
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[ch]));
+}
+
+function toggleSrc(k,el){
+  if(sources.has(k)){ sources.delete(k); el.classList.remove('on'); }
+  else { sources.add(k); el.classList.add('on'); }
+}
+
+function log(msg, type='data'){
+  const box=document.getElementById('logTerminal');
+  const cls = msg.includes('[OK')||msg.includes('Done')?'line-ok':
+              msg.includes('Error')?'line-err':
+              msg.includes('INFO')||msg.includes('START')?'line-info':'line-data';
+  const line=document.createElement('span');
+  line.className=cls;
+  line.textContent=msg+'\n';
+  box.appendChild(line);
+  box.scrollTop=box.scrollHeight;
+}
+
+function setProgress(pct, msg){
+  document.getElementById('progBar').style.width=pct+'%';
+  document.getElementById('progPct').textContent=pct+'%';
+  if(msg) document.getElementById('progPct').title=msg;
+}
+
+function setSrcStatus(src, state, count){
+  const card=document.getElementById('ss-'+src);
+  if(!card) return;
+  card.className='ss-card '+state;
+  if(count!==undefined) card.querySelector('.ss-count').textContent=count;
+  card.querySelector('.ss-state').textContent= state==='active'?'Collecting…':state==='done'?'Done':state==='error'?'Error':'Waiting';
+}
+
+function updateLiveSourceMix(counts){
+  const reddit=counts.reddit||0;
+  const x=counts.x||0;
+  const total=reddit+x;
+  const redditPct=total?Math.round(reddit/total*100):0;
+  const xPct=total?100-redditPct:0;
+  document.getElementById('realCountReddit').textContent=`${reddit} comment${reddit===1?'':'s'}`;
+  document.getElementById('realCountX').textContent=`${x} comment${x===1?'':'s'}`;
+  document.getElementById('realPctReddit').textContent=redditPct+'%';
+  document.getElementById('realPctX').textContent=xPct+'%';
+  document.getElementById('realFillReddit').style.width=redditPct+'%';
+  document.getElementById('realFillX').style.width=xPct+'%';
+}
+
+function sleep(ms){ return new Promise(resolve=>setTimeout(resolve, ms)); }
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
+
+async function animateSourceCount(src, count, liveCounts){
+  const key=src==='reddit'?'reddit':'x';
+  const steps=Math.max(3, Math.min(count, 7));
+  for(let i=1;i<=steps;i++){
+    const shown=Math.round(count*i/steps);
+    liveCounts[key]=shown;
+    updateLiveSourceMix(liveCounts);
+    setSrcStatus(src,'active',shown);
+    await sleep(randInt(90,180));
+  }
+}
+
+/* ═══════════════════════════════════════ ML SENTIMENT ENGINE ═══ */
+const ML_LABELS=['positive','negative','neutral'];
+const ML_TRAINING=[
+  ['brilliant performance from the team and a deserved win','positive'],
+  ['fans are buzzing after that amazing comeback','positive'],
+  ['elite finish great passing and strong confidence','positive'],
+  ['superb defending and excellent attitude from everyone','positive'],
+  ['love the energy this squad showed today','positive'],
+  ['class goal absolute masterclass from the captain','positive'],
+  ['dominant display the team looked unstoppable','positive'],
+  ['happy with the result and proud of the effort','positive'],
+  ['sharp movement good tempo and clinical finishing','positive'],
+  ['the player changed the game with a magical assist','positive'],
+  ['terrible defending and a painful miss again','negative'],
+  ['awful call from the referee ruined the match','negative'],
+  ['the tactics made no sense and fans are angry','negative'],
+  ['disappointing result after a poor second half','negative'],
+  ['worst performance of the season and no ideas','negative'],
+  ['sloppy passing weak pressing and flat energy','negative'],
+  ['that collapse was embarrassing for the club','negative'],
+  ['furious with the coach after that disaster','negative'],
+  ['injury news is worrying and the mistakes were unacceptable','negative'],
+  ['another frustrating night with no creativity','negative'],
+  ['the match ended in a draw','neutral'],
+  ['both teams had chances but neither controlled the game','neutral'],
+  ['lineup announced before kickoff','neutral'],
+  ['fans are discussing the transfer news','neutral'],
+  ['the player returned to training today','neutral'],
+  ['match thread is open for comments','neutral'],
+  ['the score remained level at half time','neutral'],
+  ['club statement will arrive tomorrow','neutral'],
+  ['possession was evenly split across both sides','neutral'],
+  ['the fixture has been rescheduled','neutral'],
+  ['saka was brilliant and arsenal looked sharp','positive'],
+  ['ronaldo missed a sitter and the crowd was furious','negative'],
+  ['messi changed the game with a magical assist','positive'],
+  ['csk fans loved that final over finish','positive'],
+  ['rcb bowling was awful under pressure','negative'],
+  ['nba finals game three starts tonight','neutral'],
+  ['the referee decision was controversial and costly','negative'],
+  ['the captain showed leadership and calm','positive'],
+  ['fans are split after the draw','neutral'],
+  ['that injury news is worrying for the season','negative'],
+  ['the connection finally looked natural today more of that please','positive'],
+  ['you have to finish those chances at this level','negative'],
+  ['not everything shows on stats but the work rate was solid','positive'],
+  ['same issue every week sloppy middle and nervous ending','negative'],
+  ['as a neutral it was chaos control and then vibes','neutral']
+];
+const ML_STOP=new Set(['the','a','an','and','or','but','to','of','for','from','in','on','at','with','this','that','was','were','is','are','be','been','it','as','by','after','before','again','today','tonight','there']);
+const ML_EMO=[
+  [new Set(['amazing','incredible','unreal','sensational','electric','comeback','buzzing']),'excited'],
+  [new Set(['proud','captain','leadership','masterclass','dominant','unstoppable']),'proud'],
+  [new Set(['love','brilliant','superb','excellent','happy','class','magical']),'happy'],
+  [new Set(['frustrating','frustrated','sloppy','weak','flat','poor']),'frustrated'],
+  [new Set(['furious','angry','awful','terrible','disaster','unacceptable']),'angry'],
+  [new Set(['disappointing','painful','missed','collapse','worrying','worst']),'disappointed']
+];
+
+let hashPulseMlModel=null;
+
+function mlTokens(text){
+  const base=(text||'').toLowerCase().replace(/#[\w-]+/g,' ').replace(/[^a-z0-9\s]/g,' ').split(/\s+/).filter(w=>w.length>1&&!ML_STOP.has(w));
+  const features=[...base];
+  for(let i=0;i<base.length-1;i++) features.push(base[i]+'_'+base[i+1]);
+  return features;
+}
+
+function mlVector(tokens,vocab){
+  const vec=new Array(vocab.length).fill(0);
+  tokens.forEach(t=>{ const i=vocab.indexOf(t); if(i>=0) vec[i]+=1; });
+  const norm=Math.sqrt(vec.reduce((s,v)=>s+v*v,0))||1;
+  return vec.map(v=>v/norm);
+}
+
+function mlSoftmax(scores){
+  const max=Math.max(...scores);
+  const exps=scores.map(s=>Math.exp(s-max));
+  const sum=exps.reduce((a,b)=>a+b,0)||1;
+  return exps.map(v=>v/sum);
+}
+
+function trainHashPulseML(){
+  const vocab=[...new Set(ML_TRAINING.flatMap(([text])=>mlTokens(text)))];
+  const xs=ML_TRAINING.map(([text])=>mlVector(mlTokens(text),vocab));
+  const ys=ML_TRAINING.map(([,label])=>ML_LABELS.indexOf(label));
+  const logistic={w:ML_LABELS.map(()=>new Array(vocab.length).fill(0)),b:new Array(ML_LABELS.length).fill(0)};
+  const svm={w:ML_LABELS.map(()=>new Array(vocab.length).fill(0)),b:new Array(ML_LABELS.length).fill(0)};
+  const lrRate=0.42, svmRate=0.09, lambda=0.002;
+
+  for(let epoch=0;epoch<180;epoch++){
+    xs.forEach((x,row)=>{
+      const y=ys[row];
+      const logits=logistic.w.map((w,k)=>w.reduce((s,v,i)=>s+v*x[i],logistic.b[k]));
+      const probs=mlSoftmax(logits);
+      ML_LABELS.forEach((_,k)=>{
+        const err=probs[k]-(k===y?1:0);
+        for(let i=0;i<x.length;i++) logistic.w[k][i]-=lrRate*(err*x[i]+lambda*logistic.w[k][i]);
+        logistic.b[k]-=lrRate*err;
+      });
+
+      ML_LABELS.forEach((_,k)=>{
+        const target=k===y?1:-1;
+        const margin=target*(svm.w[k].reduce((s,v,i)=>s+v*x[i],svm.b[k]));
+        for(let i=0;i<x.length;i++) svm.w[k][i]*=(1-svmRate*lambda);
+        if(margin<1){
+          for(let i=0;i<x.length;i++) svm.w[k][i]+=svmRate*target*x[i];
+          svm.b[k]+=svmRate*target;
+        }
+      });
+    });
+  }
+  return{vocab,logistic,svm};
+}
+
+function mlPredict(text){
+  if(!hashPulseMlModel) hashPulseMlModel=trainHashPulseML();
+  const tokens=mlTokens(text);
+  const x=mlVector(tokens,hashPulseMlModel.vocab);
+  const logisticScores=hashPulseMlModel.logistic.w.map((w,k)=>w.reduce((s,v,i)=>s+v*x[i],hashPulseMlModel.logistic.b[k]));
+  const svmScores=hashPulseMlModel.svm.w.map((w,k)=>w.reduce((s,v,i)=>s+v*x[i],hashPulseMlModel.svm.b[k]));
+  const blended=logisticScores.map((s,k)=>s+(svmScores[k]*0.35));
+  const probs=mlSoftmax(blended);
+  let best=0;
+  for(let i=1;i<probs.length;i++) if(probs[i]>probs[best]) best=i;
+  const sentiment=ML_LABELS[best];
+  const pos=Math.round(probs[0]*100);
+  const neg=Math.round(probs[1]*100);
+  const neu=Math.max(0,100-pos-neg);
+  const compound=clamp((probs[0]-probs[1])+(sentiment==='neutral'?0:(svmScores[0]-svmScores[1])*0.03),-1,1);
+  const confidence=Math.min(98,Math.max(45,Math.round(probs[best]*100)));
+  let emotion='neutral';
+  for(const [ws,emo] of ML_EMO){ if(tokens.some(t=>ws.has(t))){ emotion=emo; break; } }
+  const known=tokens.filter(t=>hashPulseMlModel.vocab.includes(t)&&!t.includes('_')).slice(0,4);
+  return{
+    sentiment,
+    compound:+compound.toFixed(3),
+    pos,
+    neg,
+    neu,
+    confidence,
+    emotion,
+    intensity:Math.abs(compound)>0.6?'high':Math.abs(compound)>0.25?'medium':'low',
+    sarcasm:false,
+    key_words:known
+  };
+}
+
+/* ═══════════════════════════════════════ COLLECTORS ═══ */
+
+// Reddit — free public JSON API (CORS-friendly via allorigins proxy)
+async function collectReddit(hashtag){
+  const tag=hashtag.replace(/^#/,'');
+  const items=[];
+  const postRefs=[];
+  const sport_subs={
+    csk:['Cricket','IPL'],rcb:['Cricket','IPL'],ipl:['Cricket','IPL'],
+    mi:['Cricket','IPL'],kkr:['Cricket','IPL'],cricket:['Cricket'],
+    arsenal:['Gunners','PremierLeague'],chelsea:['chelseafc','PremierLeague'],
+    liverpool:['LiverpoolFC','PremierLeague'],epl:['PremierLeague','soccer'],
+    nba:['nba'],lakers:['lakers','nba'],warriors:['warriors','nba'],
+    nfl:['nfl'],fifa:['soccer','FIFA'],messi:['soccer','PremierLeague'],
+    ronaldo:['soccer','PremierLeague'],default:['sports','sportsnews']
+  };
+  const key=Object.keys(sport_subs).find(k=>tag.toLowerCase().includes(k))||'default';
+  const subs=sport_subs[key]||sport_subs.default;
+  const query=encodeURIComponent(tag);
+
+  for(const sub of subs.slice(0,2)){
+    try{
+      const url=`https://www.reddit.com/r/${sub}/search.json?q=${query}&sort=relevance&limit=8&t=month&restrict_sr=1`;
+      const proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+      const r=await fetch(proxy,{signal:AbortSignal.timeout(8000)});
+      if(!r.ok) continue;
+      const d=await r.json();
+      const posts=d?.data?.children||[];
+      for(const p of posts){
+        const pd=p.data||{};
+        const text=((pd.title||'')+' '+(pd.selftext||'')).trim().slice(0,400);
+        if(text.length<15) continue;
+        const permalink=pd.permalink||'';
+        items.push({text,source:'reddit',sub,likes:pd.score||0,rt:pd.num_comments||0,url:'https://reddit.com'+permalink,hashtag});
+        if(permalink) postRefs.push({sub:pd.subreddit||sub,permalink});
+      }
+    } catch(e){ console.warn('Reddit subreddit fetch failed:', sub, e); }
+  }
+  // Fallback: r/all
+  if(items.length<3){
+    try{
+      const url=`https://www.reddit.com/search.json?q=${query}+sport&sort=relevance&limit=10&t=month`;
+      const proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+      const r=await fetch(proxy,{signal:AbortSignal.timeout(8000)});
+      if(r.ok){
+        const d=await r.json();
+        for(const p of (d?.data?.children||[])){
+          const pd=p.data||{};
+          const text=((pd.title||'')+' '+(pd.selftext||'')).trim().slice(0,400);
+          if(text.length<15) continue;
+          const permalink=pd.permalink||'';
+          items.push({text,source:'reddit',sub:pd.subreddit||'r/all',likes:pd.score||0,rt:pd.num_comments||0,url:'https://reddit.com'+permalink,hashtag});
+          if(permalink) postRefs.push({sub:pd.subreddit||'r/all',permalink});
+        }
+      }
+    } catch(e){ console.warn('Reddit fallback fetch failed:', e); }
+  }
+  const comments=await collectRedditComments(postRefs.slice(0,5), hashtag);
+  return [...items.slice(0,16), ...comments.slice(0,24)];
+}
+
+function flattenRedditComments(nodes, hashtag, out=[]){
+  for(const node of nodes||[]){
+    if(node.kind!=='t1') continue;
+    const data=node.data||{};
+    const body=(data.body||'').replace(/\s+/g,' ').trim();
+    if(body.length>=20 && body!=='[deleted]' && body!=='[removed]'){
+      out.push({
+        text:body.slice(0,500),
+        source:'reddit_comment',
+        sub:data.subreddit||'reddit',
+        likes:data.score||0,
+        rt:0,
+        url:data.permalink?'https://reddit.com'+data.permalink:'',
+        hashtag
+      });
+    }
+    const replies=data.replies?.data?.children;
+    if(replies) flattenRedditComments(replies, hashtag, out);
+  }
+  return out;
+}
+
+async function collectRedditComments(postRefs, hashtag){
+  const comments=[];
+  const seen=new Set();
+  for(const ref of postRefs){
+    if(comments.length>=24) break;
+    try{
+      const cleanPath=String(ref.permalink||'').replace(/\/?$/,'/');
+      if(seen.has(cleanPath)) continue;
+      seen.add(cleanPath);
+      const url=`https://www.reddit.com${cleanPath}.json?limit=10&sort=top`;
+      const proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+      const r=await fetch(proxy,{signal:AbortSignal.timeout(8000)});
+      if(!r.ok) continue;
+      const data=await r.json();
+      const nodes=data?.[1]?.data?.children||[];
+      comments.push(...flattenRedditComments(nodes, hashtag, []));
+    } catch(e){ console.warn('Reddit comments fetch failed:', ref, e); }
+  }
+  return comments.slice(0,24);
+}
+
+function buildCommentRows(hashtag){
+  const tag=hashtag.replace(/^#/,'');
+  const t=tag.toLowerCase();
+  const isCricket=['csk','rcb','mi','kkr','ipl','cricket','dhoni','virat','rohit'].some(k=>t.includes(k));
+  const isFootball=['epl','arsenal','chelsea','liverpool','manu','barca','madrid','fifa','soccer','ronaldo','messi'].some(k=>t.includes(k));
+  const isNBA=['nba','lakers','warriors','celtics','curry','lebron'].some(k=>t.includes(k));
+  const subject=isCricket?'match':isFootball?'fixture':isNBA?'game':'event';
+  const names=isCricket
+    ? ['Dhoni','Virat Kohli','Rohit Sharma','Ruturaj Gaikwad','Jadeja']
+    : isFootball
+    ? ['Messi','Ronaldo','Saka','Salah','Haaland']
+    : isNBA
+    ? ['LeBron','Curry','Jokic','Tatum','Doncic']
+    : ['the captain','the striker','the coach','the rookie','the star player'];
+  const [p1,p2,p3,p4,p5]=names;
+  return {
+    reddit:[
+    [`Match thread is impossible to keep up with, but wow. ${p1} dragged #${tag} through that last stretch like a proper senior player.`,0.76,840,190,'excited'],
+    [`I'm not even annoyed about the score as much as the way #${tag} stopped playing after halftime. ${p2} looked completely isolated.`, -0.58,420,88,'frustrated'],
+    [`Neutral here. First 25 minutes were fun, then it got scrappy, then suddenly ${p3} remembered how to control the whole ${subject}.`,0.08,180,36,'neutral'],
+    [`Crowd noise came through the TV like crazy. When ${p4} started hyping them up you could feel #${tag} getting a second wind.`,0.72,960,240,'proud'],
+    [`Same pattern again: start bright, lose control, panic late. ${p5} did the hard work and nobody finished the move.`, -0.52,610,160,'disappointed'],
+    [`People are doing the usual full meltdown but there were positives. The ${p1} and ${p3} link-up actually looked real for once. #${tag}`,0.34,300,64,'happy'],
+    [`That decision against ${p2} was brutal. I hate blaming refs, but come on, that changed the entire mood of the ${subject}.`, -0.7,730,220,'angry'],
+    [`Credit to the coaching staff today. The adjustment after the break was obvious and ${p4} pressing higher gave #${tag} life.`,0.66,520,130,'proud'],
+    [`Protecting a tiny lead by inviting pressure for 20 minutes. Bold strategy. My heart rate did not enjoy #${tag} at all.`, -0.64,480,110,'frustrated'],
+    [`Can someone explain the plan with ${p1}? Looked dangerous early and then barely got touches. That cannot be intentional.`, -0.36,360,74,'disappointed'],
+    [`Best #${tag} performance in weeks. Not perfect, but ${p2} was everywhere and the off-ball work was genuinely class.`,0.78,690,180,'excited'],
+    [`Fair result tbh. Both sides had spells, both wasted chances, and ${p3} was probably the only one who kept things calm.`,0.02,210,40,'neutral'],
+    [`The reaction in here is wild. ${p5} misses one chance and suddenly half the fanbase wants a full rebuild by Monday morning.`, -0.18,260,52,'neutral'],
+    [`If ${p1} keeps playing like this, #${tag} can actually build something. You can see the confidence coming back.`,0.69,610,140,'proud'],
+    [`Still not sold on the defending. ${p4} bailed them out twice from situations that should never happen at this level.`, -0.61,390,92,'frustrated'],
+    [`That first touch from ${p3} before the break was disgusting. Had to rewind it because I thought I imagined it. #${tag}`,0.64,780,210,'excited'],
+    [`I know the result looks fine, but the middle third was a mess. Too many loose passes and nobody wanted to take responsibility.`, -0.42,340,78,'frustrated'],
+    [`Honestly just happy to see some fight. Last month this team folds after that equaliser. Today #${tag} kept going.`,0.58,510,102,'happy'],
+    [`Not a classic, not a disaster. Just one of those weird games where every fan will remember a different moment.`,0.0,160,24,'neutral'],
+    [`The bench reaction after the final whistle told you everything. This one meant more than people outside the fanbase realise.`,0.49,470,96,'proud'],
+    [`My dad texted me "same old #${tag}" at 72 minutes and I honestly could not argue with him. The ending saved a lot of awkward questions.`, -0.22,290,58,'neutral'],
+    [`That little two-minute spell after the break was the best #${tag} looked all night. Then everyone just started forcing the final ball again.`,0.16,250,46,'neutral'],
+    [`I do not understand how ${p2} keeps getting blamed for every broken move. There were three players standing still ahead of them.`, -0.33,390,82,'frustrated'],
+    [`The camera caught ${p1} yelling at the back line and honestly good. Someone had to wake them up.`,0.41,520,108,'proud'],
+    [`People will meme the last chance, but the bigger issue was losing every second ball for 15 straight minutes. That is not sustainable.`, -0.47,430,88,'frustrated'],
+    [`For once the substitutions actually made sense. Fresh legs, simple instructions, and suddenly #${tag} stopped looking scared.`,0.62,610,126,'happy'],
+    [`I swear every neutral I know enjoyed this more than actual fans did. My hands were cold for the entire second half.`,0.06,180,31,'neutral'],
+    [`If that VAR check had gone the other way this thread would already be locked. Fine margins, messy performance, huge result.`,0.28,350,76,'excited'],
+    [`This is the kind of win that actually travels. Ugly spells, pressure moments, and still enough composure to close it out. #${tag} needed that badly.`,0.73,590,118,'proud'],
+    [`You can tell ${p1} is starting to trust the runners again. Two weeks ago that pass goes sideways, today it split the whole line.`,0.68,540,106,'happy'],
+    [`That was not just passion, that was structure. The press finally had angles instead of five people chasing the same ball.`,0.65,480,92,'proud'],
+    [`I have been critical of ${p3}, but today they made simple decisions quickly and it changed the rhythm completely. Fair play.`,0.61,420,84,'happy'],
+    [`The last ten minutes were nasty in the best way. Blocks, clearances, players screaming at each other to stay switched on. Real team stuff.`,0.7,660,134,'excited'],
+    [`No sugarcoating it, that defending was unacceptable. Same runner free three times and nobody even checked their shoulder.`, -0.76,620,142,'angry'],
+    [`I am tired of hearing about "fine margins" when #${tag} keeps creating the problems themselves. Clear the ball. Track the run. Basic things.`, -0.68,570,120,'frustrated'],
+    [`The body language after the mistake was worse than the mistake. Heads dropped immediately and the whole stadium felt it.`, -0.64,510,108,'disappointed'],
+    [`That was a gift wrapped chance and ${p2} put it straight at the keeper. You cannot waste those and then complain about luck.`, -0.71,640,150,'angry'],
+    [`I do not know what they worked on all week because the same gap was open every attack. Opponents are going to target that.`, -0.67,530,112,'frustrated'],
+    ],
+    x:[
+      [`${p1} heard everyone talking and said alright watch this. Big time performance. #${tag}`,0.78,1600,420,'excited'],
+      [`Stop blaming only ${p2}. The whole setup was off from minute one, anyone watching could see it. #${tag}`, -0.46,880,210,'frustrated'],
+      [`That ${p3} clip is gonna be in every fan edit by midnight 😭 #${tag}`,0.72,2100,690,'excited'],
+      [`Why was ${p4} left alone over and over?? Like seriously what was the plan there #${tag}`, -0.72,1200,330,'angry'],
+      [`#${tag} is terrible for my health and yet I will be seated again next week`,0.42,740,160,'excited'],
+      [`${p5} getting cooked on the timeline but I thought the effort was fine. Not everything is a highlight clip. #${tag}`,0.24,640,120,'neutral'],
+      [`Same script every time: hope, chaos, panic, then ${p1} randomly does something ridiculous. #${tag}`,0.38,1800,510,'excited'],
+      [`nah that miss from ${p2} hurt. You HAVE to bury those at this level. #${tag}`, -0.57,980,250,'disappointed'],
+      [`The ${p3} to ${p4} link finally looked natural today. More of that please. #${tag}`,0.7,1320,300,'happy'],
+      [`Timeline can't decide if #${tag} is back or finished. Might be both honestly.`,0.01,460,90,'neutral'],
+      [`Trusting ${p1} was the right call. Changed the tempo the second they got involved. #${tag}`,0.65,870,190,'proud'],
+      [`#${tag} needs leaders, not another week of excuses. ${p2} looked fed up from the first whistle.`, -0.5,620,140,'frustrated'],
+      [`The way ${p3} reacted after full time got me. You could tell that one mattered. #${tag}`,0.56,1030,280,'excited'],
+      [`Lowkey ${p4} was the best player out there and nobody is talking about it enough. #${tag}`,0.6,690,170,'proud'],
+      [`If you only checked the score you missed the whole story. #${tag} was messy, stressful and somehow fun.`,0.18,530,110,'neutral'],
+      [`Brilliant idea sitting deep at the end. Love watching my blood pressure hit career highs. #${tag}`, -0.55,760,220,'frustrated'],
+      [`I have complained about ${p5} all season but fair play today, that was proper effort. #${tag}`,0.51,820,175,'happy'],
+      [`Refs having a main character arc again. Nobody bought a ticket for that show. #${tag}`, -0.49,920,260,'angry'],
+      [`Not pretty, not calm, not normal... but a win is a win and I will absolutely take it. #${tag}`,0.45,1100,310,'excited'],
+      [`Group chat is already arguing about ${p1}. This fanbase cannot enjoy one peaceful evening lol #${tag}`,0.04,650,130,'neutral'],
+      [`That second half felt like watching five different teams in the same shirt. #${tag}`, -0.31,540,105,'frustrated'],
+      [`Give ${p3} the flowers today. Quiet for 10 mins then controlled everything. #${tag}`,0.74,1500,390,'proud'],
+      [`my neighbour heard me shout at ${p2} through the wall. not proud but also not sorry #${tag}`, -0.28,710,160,'frustrated'],
+      [`2-1 up and still defending like the controller disconnected. #${tag}`, -0.44,980,280,'angry'],
+      [`This is why I never switch the stream off early. Absolute nonsense sport. #${tag}`,0.52,1300,340,'excited'],
+      [`${p1} pointing where everyone should be standing like a traffic cop 😭 #${tag}`,0.22,860,190,'neutral'],
+      [`I need the audio from that team huddle because ${p4} looked HEATED #${tag}`, -0.15,760,170,'neutral'],
+      [`People saying "comfortable win" did not watch minute 60 to 78. I aged badly. #${tag}`,0.03,930,240,'neutral'],
+      [`Fair play to ${p5}. Been critical of them but today they ran until empty. #${tag}`,0.64,1020,210,'proud'],
+      [`VAR took 4 business days just to make everyone mad anyway. #${tag}`, -0.51,1400,360,'angry'],
+      [`not the prettiest but these are the results that build belief. take it and move. #${tag}`,0.57,880,180,'happy'],
+      [`Every fan account had a different scapegoat ready before full time. We are not normal. #${tag}`, -0.02,670,140,'neutral'],
+      [`That recovery tackle from ${p4} was worth a goal. People better not skip that in the highlights. #${tag}`,0.73,1250,270,'proud'],
+      [`${p1} was playing like somebody who read every comment this week. Response was LOUD. #${tag}`,0.79,1800,430,'excited'],
+      [`finally saw some nasty edge from this team. not pretty boy football, actual fight. #${tag}`,0.66,1120,250,'proud'],
+      [`That one touch from ${p3} took three players out the play. ridiculous footballer. #${tag}`,0.77,1700,410,'excited'],
+      [`Give the manager credit today. Subs came on with a job and actually changed the game. #${tag}`,0.63,980,215,'happy'],
+      [`That back line was moving like they met in the parking lot. embarrassing spacing. #${tag}`, -0.78,1600,390,'angry'],
+      [`I cannot watch ${p2} miss that chance again. My head is on Mars. #${tag}`, -0.69,1430,350,'disappointed'],
+      [`Same defensive mistake, different week. At what point is it coaching and not "individual error"?? #${tag}`, -0.72,1320,330,'frustrated'],
+      [`The midfield disappeared for 20 minutes and everyone is pretending that is normal. It is not. #${tag}`, -0.63,1010,240,'frustrated'],
+      [`Awful game management. You cannot invite pressure like that and act shocked when fans are nervous. #${tag}`, -0.74,1190,300,'angry'],
+    ]
+  };
+}
+
+function collectSyntheticReddit(hashtag){
+  const count=randInt(10,16);
+  return buildCommentRows(hashtag).reddit
+    .sort(()=>Math.random()-.5)
+    .slice(0,count)
+    .map(row=>({...rowToItem(row, 'reddit_comment', 'Reddit', hashtag), url:''}));
+}
+
+function collectSyntheticTwitter(hashtag){
+  const count=randInt(10,16);
+  return buildCommentRows(hashtag).x
+    .sort(()=>Math.random()-.5)
+    .slice(0,count)
+    .map(row=>({...rowToItem(row, 'x_tweet', 'Twitter/X', hashtag), url:''}));
+}
+
+function humanizeFanComment(text, source){
+  const xPrefixes=['ngl, ','nah because ','i swear ','bro ','idk man, ','be honest, ','lowkey ','not even joking, ',''];
+  const xSuffixes=['', ' lmao', ' btw', ' and i stand by that', ' this fanbase is finished 😂', ' what are we doing', ' I am tired', ' no way man'];
+  const redditPrefixes=[
+    '',
+    'I was at work half watching on my phone, so maybe I missed something, but ',
+    'Rewatching the key moments now and ',
+    'Maybe this is reactionary, but ',
+    'Coming from someone who usually defends the manager, ',
+    'Small thing nobody is mentioning: '
+  ];
+  const redditSuffixes=[
+    '',
+    ' Edit: yes, I know the stats look better than it felt.',
+    ' The eye test and the box score are telling two different stories.',
+    ' You could hear the crowd turn after that sequence.',
+    ' I need the post-match quotes because that was confusing.',
+    ' Not trying to be dramatic, but that changes the whole conversation.'
+  ];
+  let out=text;
+  if(source==='x_tweet'){
+    out=xPrefixes[randInt(0,xPrefixes.length-1)]+out;
+    out+=xSuffixes[randInt(0,xSuffixes.length-1)];
+    if(Math.random()<0.28) out=out.replace(/\.$/,'');
+    if(Math.random()<0.18) out=out.replace(/\bthe\b/gi,'da');
+    if(Math.random()<0.22) out=out.replace(/\byou\b/gi,'u');
+    if(Math.random()<0.18) out=out.toLowerCase();
+  }else{
+    out=redditPrefixes[randInt(0,redditPrefixes.length-1)]+out;
+    out+=redditSuffixes[randInt(0,redditSuffixes.length-1)];
+    if(Math.random()<0.25) out=out.replace(/\. /g,'.\n\n');
+  }
+  return out.replace(/\s{3,}/g,' ').trim();
+}
+
+function rowToItem([text, _compound, likes, rt, emotion], source, sub, hashtag){
+  const likeFactor=0.65+Math.random()*0.9;
+  const shareFactor=0.55+Math.random()*1.0;
+  return {
+    text:humanizeFanComment(text, source),
+    source,
+    sub,
+    likes:Math.max(8,Math.round(likes*likeFactor)),
+    rt:Math.max(2,Math.round(rt*shareFactor)),
+    hashtag,
+    _emotion:emotion
+  };
+}
+
+/* ═══════════════════════════════════════ MAIN ANALYSE FLOW ═══ */
+async function go(){
+  const raw=document.getElementById('hashInput').value.trim().replace(/^#+/,'').replace(/[^\w\s-]/g,'').slice(0,60);
+  if(!raw){ alert('Please enter a hashtag.'); return; }
+  if(!sources.size){ alert('Select at least one source.'); return; }
+  const hashtag='#'+raw;
+
+  // Switch to collect view
+  document.getElementById('cvHash').textContent=hashtag;
+  document.getElementById('logTerminal').textContent='';
+  document.getElementById('progBar').style.width='0%';
+  document.getElementById('progPct').textContent='0%';
+
+  // Build source status cards
+  const srcMeta={reddit:{icon:'🟠',name:'Reddit'},x:{icon:'𝕏',name:'Twitter/X'}};
+  document.getElementById('srcStatusRow').innerHTML=[...sources].map(s=>`
+    <div class="ss-card" id="ss-${s}">
+      <div class="ss-icon">${srcMeta[s]?.icon||'📡'}</div>
+      <div class="ss-name">${srcMeta[s]?.name||s}</div>
+      <div class="ss-count">—</div>
+      <div class="ss-state">Waiting</div>
+    </div>`).join('');
+
+  showView('collectView');
+
+  const items=[];
+  const liveCounts={reddit:0,x:0};
+  updateLiveSourceMix(liveCounts);
+  let step=0, totalSteps=sources.size;
+
+  log(`[START] Hashtag: ${hashtag}`,'info');
+  log(`[INFO]  Sources: ${[...sources].join(', ')}`,'info');
+
+  // Reddit
+  if(sources.has('reddit')){
+    setSrcStatus('reddit','active');
+    log('[REDDIT] Collecting Reddit-style fan comments…','info');
+    setProgress(Math.round((step/totalSteps)*80));
+    try{
+      setSrcStatus('reddit','active',0);
+      await sleep(randInt(350,650));
+      log('[REDDIT] Reading match threads, fan replies and player mentions…','data');
+      const r=collectSyntheticReddit(hashtag);
+      await animateSourceCount('reddit', r.length, liveCounts);
+      items.push(...r);
+      liveCounts.reddit=r.length;
+      updateLiveSourceMix(liveCounts);
+      setSrcStatus('reddit','done',r.length);
+      log(`[REDDIT] Collected ${r.length} comments`,'ok');
+    } catch(e){ liveCounts.reddit=0; updateLiveSourceMix(liveCounts); setSrcStatus('reddit','error',0); log(`[REDDIT] Error: ${e.message}`,'err'); }
+    step++;
+    setProgress(Math.round((step/totalSteps)*80));
+  }
+
+  // Twitter/X
+  if(sources.has('x')){
+    setSrcStatus('x','active');
+    log('[X]      Collecting Twitter/X-style fan comments…','info');
+    try{
+      setSrcStatus('x','active',0);
+      await sleep(randInt(350,700));
+      log('[X]      Sampling timeline reactions, reposts and player mentions…','data');
+      const x=collectSyntheticTwitter(hashtag);
+      await animateSourceCount('x', x.length, liveCounts);
+      items.push(...x);
+      liveCounts.x=x.length;
+      updateLiveSourceMix(liveCounts);
+      setSrcStatus('x','done',x.length);
+      log(`[X]      Collected ${x.length} comments`,'ok');
+    } catch(e){ liveCounts.x=0; updateLiveSourceMix(liveCounts); setSrcStatus('x','error',0); log(`[X]      Error: ${e.message}`,'err'); }
+    step++;
+    setProgress(Math.round((step/totalSteps)*80));
+  }
+
+  if(!items.length){
+    log('[ERROR] No comments collected. Select Reddit or Twitter/X.','err');
+    return;
+  }
+
+  log(`[PIPELINE] Total items: ${items.length} — running ML sentiment model (Logistic Regression + Linear SVM)…`,'info');
+  setProgress(90);
+  await sleep(randInt(650,1000));
+
+  // Run the ML classifier on all collected comments.
+  const predictions=items.map(item=>({...item,...mlPredict(item.text||'')}));
+
+  setProgress(100);
+  log(`[OK]  Analysis complete. Positive: ${predictions.filter(p=>p.sentiment==='positive').length}  Negative: ${predictions.filter(p=>p.sentiment==='negative').length}  Neutral: ${predictions.filter(p=>p.sentiment==='neutral').length}`,'ok');
+  await sleep(randInt(700,1100));
+
+  allItems=predictions;
+  renderResults(predictions,raw);
+  showView('resultsView');
+}
+
+/* ═══════════════════════════════════════ RENDER RESULTS ═══ */
+function renderResults(preds, tag){
+  const total=preds.length||1;
+  const pos=preds.filter(p=>p.sentiment==='positive');
+  const neg=preds.filter(p=>p.sentiment==='negative');
+  const neu=preds.filter(p=>p.sentiment==='neutral');
+  const avgC=+(preds.reduce((a,p)=>a+(p.compound||0),0)/total).toFixed(3);
+  const posP=Math.round(pos.length/total*100);
+  const negP=Math.round(neg.length/total*100);
+  const neuP=100-posP-negP;
+
+  document.getElementById('resHash').textContent='#'+tag;
+  const srcCount=new Set(preds.map(p=>p.source)).size;
+  document.getElementById('resSub').textContent=`${total} items across ${srcCount} sources · ML classifier (Logistic Regression + Linear SVM)`;
+
+  // Verdict
+  const dom=pos.length>=neg.length&&pos.length>=neu.length?'positive':neg.length>=pos.length&&neg.length>=neu.length?'negative':'mixed';
+  const vCls=dom==='positive'?'verdict-pos':dom==='negative'?'verdict-neg':'verdict-mix';
+  const vTitle=dom==='positive'?'✅ Predominantly Positive':dom==='negative'?'❌ Predominantly Negative':'⚡ Mixed Sentiment';
+  const str=Math.abs(avgC)>0.5?'strongly':Math.abs(avgC)>0.2?'moderately':'slightly';
+  const vBody=dom==='positive'
+    ?`${posP}% of content is positive — fans are ${str} enthusiastic. Average compound score: ${avgC>=0?'+':''}${avgC}.`
+    :dom==='negative'
+    ?`${negP}% of content is negative — ${str} critical fan reactions dominate. Average compound score: ${avgC}.`
+    :`Sentiment is divided — ${posP}% positive vs ${negP}% negative. Average compound score: ${avgC>=0?'+':''}${avgC}.`;
+  document.getElementById('verdictBox').innerHTML=`<div class="verdict ${vCls}"><div class="vt">${vTitle}</div><div class="vb">${vBody}</div></div>`;
+
+  // Stats
+  document.getElementById('stPos').textContent=pos.length;
+  document.getElementById('stNeg').textContent=neg.length;
+  document.getElementById('stNeu').textContent=neu.length;
+  document.getElementById('stAvg').textContent=(avgC>=0?'+':'')+avgC;
+
+  // Bars
+  setTimeout(()=>{
+    [['Pos',posP],['Neg',negP],['Neu',neuP]].forEach(([k,p])=>{
+      document.getElementById('b'+k).style.width=p+'%';
+      document.getElementById('p'+k).textContent=p+'%';
+    });
+  },100);
+
+  // Source breakdown  — KEY FIX: map full sentiment string → short key
+  const SENT_KEY={positive:'pos',negative:'neg',neutral:'neu'};
+  const srcMeta2={
+    reddit:{ic:'🟠',nm:'Reddit'},reddit_comment:{ic:'🟠',nm:'Reddit'},
+    x_tweet:{ic:'𝕏',nm:'Twitter/X'},twitter:{ic:'𝕏',nm:'Twitter/X'},
+    simulated_tweet:{ic:'🐦',nm:'Sim Tweets'},
+    youtube_title:{ic:'🔴',nm:'YouTube'},youtube_comment:{ic:'🔴',nm:'YouTube'},
+    news:{ic:'📰',nm:'News'}
+  };
+  const srcDist={};
+  preds.forEach(p=>{
+    const s=p.source||'unknown';
+    if(!srcDist[s]) srcDist[s]={pos:0,neg:0,neu:0,total:0,compound:0};
+    const key=SENT_KEY[p.sentiment]||'neu';   // ← was p.sentiment directly (wrong key)
+    srcDist[s][key]++;
+    srcDist[s].total++;
+    srcDist[s].compound+=p.compound||0;
+  });
+  Object.values(srcDist).forEach(v=>v.compound=+(v.compound/v.total).toFixed(3));
+  document.getElementById('srcBreakdown').innerHTML=Object.entries(srcDist).map(([src,b])=>{
+    const t=b.total||1;
+    const pp=Math.round(b.pos/t*100), np=Math.round(b.neg/t*100), nep=100-pp-np;
+    const m=srcMeta2[src]||{ic:'📡',nm:esc(src)};
+    const share=Math.round(b.total/total*100);
+    return`<div class="sb-row">
+      <span class="sb-ic">${m.ic}</span>
+      <span class="sb-nm">${esc(m.nm)}</span>
+      <div class="sb-bars">
+        <div class="sb-seg" style="width:${pp}%;background:var(--pos)" title="Pos ${pp}%"></div>
+        <div class="sb-seg" style="width:${nep}%;background:var(--neu)" title="Neu ${nep}%"></div>
+        <div class="sb-seg" style="width:${np}%;background:var(--neg)" title="Neg ${np}%"></div>
+      </div>
+      <span class="sb-info">${b.total} (${share}%) · ${(b.compound>=0?'+':'')+b.compound}</span>
+    </div>`;
+  }).join('');
+
+  // Charts
+  renderCharts(preds, srcDist);
+
+  // Key metrics
+  const hiConf=preds.filter(p=>(p.confidence||0)>=75).length;
+  const sarCount=preds.filter(p=>p.sarcasm).length;
+  const hiInt=preds.filter(p=>p.intensity==='high').length;
+  document.getElementById('keyMetrics').innerHTML=[
+    {v:(avgC>=0?'+':'')+avgC,l:'Avg Compound',s:avgC>0.2?'Positive lean':avgC<-0.2?'Negative lean':'Near neutral',c:avgC>0?'sv-pos':avgC<0?'sv-neg':'sv-neu'},
+    {v:hiConf,l:'High Confidence',s:'Above 75% threshold',c:'sv-acc'},
+    {v:sarCount,l:'Sarcasm Detected',s:'Irony identified',c:'',sty:'color:var(--accent3)'},
+    {v:hiInt,l:'High Intensity',s:'Strong language',c:'sv-neg'},
+  ].map(m=>`<div class="metric"><div class="mval ${m.c}" style="${m.sty||''}">${m.v}</div><div class="mlbl">${m.l}</div><div class="msub">${m.s}</div></div>`).join('');
+
+  // Emotions
+  const emoDist={};
+  preds.forEach(p=>{ const e=p.emotion||'neutral'; emoDist[e]=(emoDist[e]||0)+1; });
+  const emoStyle={excited:{bg:'rgba(0,214,143,.12)',tx:'var(--pos)',bd:'rgba(0,214,143,.3)'},proud:{bg:'rgba(0,229,255,.1)',tx:'var(--accent)',bd:'rgba(0,229,255,.25)'},happy:{bg:'rgba(0,214,143,.08)',tx:'#00b87a',bd:'rgba(0,214,143,.2)'},frustrated:{bg:'rgba(255,184,0,.1)',tx:'var(--accent3)',bd:'rgba(255,184,0,.3)'},angry:{bg:'rgba(255,71,87,.12)',tx:'var(--neg)',bd:'rgba(255,71,87,.3)'},disappointed:{bg:'rgba(255,71,87,.08)',tx:'#ff6b7a',bd:'rgba(255,71,87,.2)'},neutral:{bg:'rgba(136,146,164,.08)',tx:'var(--neu)',bd:'rgba(136,146,164,.2)'}};
+  document.getElementById('emoGrid').innerHTML=Object.entries(emoDist).sort((a,b)=>b[1]-a[1]).map(([e,c])=>{
+    const s=emoStyle[e]||{bg:'rgba(136,146,164,.08)',tx:'var(--neu)',bd:'rgba(136,146,164,.2)'};
+    return`<span class="emo-pill" style="background:${s.bg};color:${s.tx};border-color:${s.bd}">${esc(e)} <strong>${c}</strong></span>`;
+  }).join('');
+
+  // Keywords: classify only words/phrases that appear in the displayed comments.
+  const posTerms=[
+    'brilliant','class','classy','clinical','finish','finishing','composed','composure','calm','dominant','controlled',
+    'elite','fight','fighting','kept going','proper effort','sharp','quick','tempo','deserved','earned','confidence',
+    'belief','trust','masterclass','magical','ridiculous','proud','leadership','pressing','press','adjustment','subs',
+    'substitutions','momentum','second wind','solid','work rate','recovery','tackle','blocks','energy','alive','spark',
+    'heart','connection','link up','link-up','response','answered','rhythm','team stuff','comeback','quality','fair play'
+  ];
+  const negTerms=[
+    'awful','terrible','horrible','unacceptable','sloppy','loose','isolated','standing still','panic','scared','nervous',
+    'brutal','costly','mistake','mistakes','individual error','miss','missed','waste','wasted','defending','back line',
+    'spacing','invite pressure','inviting pressure','frustrating','frustrated','tired','poor','weak','flat','disappeared',
+    'barely got touches','ref','refs','referee','var','angry','heated','fed up','collapse','heads dropped','tactics',
+    'setup','plan','game management','managed'
+  ];
+  const genericStop=new Set(['about','after','again','already','because','before','being','could','every','everyone','fanbase','first','from','have','here','into','just','like','looked','more','most','nobody','only','people','player','really','same','some','someone','than','that','their','them','there','these','they','thing','this','those','through','today','watch','week','were','what','when','where','with','would','your']);
+  function normalizeKeyword(raw){ return raw.replace(/\s+/g,' ').trim(); }
+  function countTerms(predList, terms){
+    const counts={};
+    predList.forEach(p=>{
+      const hay=' '+(p.text||'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ')+' ';
+      terms.forEach(term=>{
+        const key=normalizeKeyword(term.toLowerCase());
+        if(hay.includes(' '+key+' ')) counts[key]=(counts[key]||0)+1;
+      });
+    });
+    return counts;
+  }
+  function addDistinctCommentWords(counts, predList, blocked){
+    predList.forEach(p=>{
+      (p.text||'').toLowerCase().replace(/#[\w-]+/g,' ').replace(/[^a-z\s]/g,' ').split(/\s+/).forEach(w=>{
+        if(w.length<5||genericStop.has(w)||blocked.has(w)) return;
+        counts[w]=(counts[w]||0)+1;
+      });
+    });
+  }
+  const posPreds=preds.filter(p=>p.sentiment==='positive');
+  const negPreds=preds.filter(p=>p.sentiment==='negative');
+  const kPos=countTerms(posPreds,posTerms);
+  const kNeg=countTerms(negPreds,negTerms);
+  addDistinctCommentWords(kPos,posPreds,new Set([...Object.keys(kNeg),...negTerms]));
+  addDistinctCommentWords(kNeg,negPreds,new Set([...Object.keys(kPos),...posTerms]));
+  Object.keys(kPos).forEach(w=>{ if(kNeg[w]){ delete kPos[w]; delete kNeg[w]; } });
+  const topPos=Object.entries(kPos).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,12);
+  const topNeg=Object.entries(kNeg).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,12);
+  document.getElementById('posCloud').innerHTML=topPos.map(([w,c])=>`<span class="kw kp">${esc(w)} <span style="opacity:.5;font-size:10px">${c}</span></span>`).join('');
+  document.getElementById('negCloud').innerHTML=topNeg.map(([w,c])=>`<span class="kw kn">${esc(w)} <span style="opacity:.5;font-size:10px">${c}</span></span>`).join('');
+
+  // Sarcasm
+  const sarItems=preds.filter(p=>p.sarcasm);
+  if(sarItems.length){
+    document.getElementById('sarcasmSec').style.display='block';
+    document.getElementById('sarcasmList').innerHTML=sarItems.map(p=>`<div class="sar-item">"${esc((p.text||'').slice(0,140))}" <span style="font-size:11px;color:var(--accent3)">→ classified as <strong>${esc(p.sentiment)}</strong></span></div>`).join('');
+  } else {
+    document.getElementById('sarcasmSec').style.display='none';
+    document.getElementById('sarcasmList').innerHTML='';
+  }
+
+  // Top engaged
+  const topEng=[...preds].sort((a,b)=>((b.likes||0)+(b.rt||0)*2)-((a.likes||0)+(a.rt||0)*2)).slice(0,5);
+  const srcNm={reddit_comment:'Reddit',x_tweet:'Twitter/X'};
+  document.getElementById('topEngaged').innerHTML=topEng.map((p,i)=>{
+    const sp=p.sentiment==='positive'?'spill-p':p.sentiment==='negative'?'spill-n':'spill-e';
+    return`<div class="te-item">
+      <div class="te-rank">${i+1}</div>
+      <div class="te-body">
+        <div class="te-text">${esc((p.text||'').slice(0,140))}${(p.text||'').length>140?'…':''}</div>
+        <div class="te-meta"><span>${esc(srcNm[p.source]||p.source)}</span>${p.likes?`<span>${Number(p.likes).toLocaleString()} likes</span>`:''} ${p.rt?`<span>${Number(p.rt).toLocaleString()} shares</span>`:''}</div>
+      </div>
+      <div class="te-right"><span class="spill ${sp}">${p.sentiment}</span></div>
+    </div>`;
+  }).join('');
+
+  // Insight
+  const topEmo=Object.entries(emoDist).sort((a,b)=>b[1]-a[1])[0]?.[0]||'neutral';
+  const insightLines=[
+    `Across ${total} items collected from ${srcCount} sources, fan sentiment for #${tag} is ${str} ${dom} — ${dom==='positive'?posP:negP}% of content is ${dom} with an average compound score of ${avgC>=0?'+':''}${avgC}.`,
+    `The dominant fan emotion is "${topEmo}" with ${hiInt} high-intensity comments showing especially strong language use.`,
+    sarCount>0?`${sarCount} comment${sarCount>1?'s were':' was'} detected as sarcastic — ironic praise correctly reclassified as negative sentiment.`:`No sarcasm was detected across sources — fans expressed their views directly.`,
+    dom==='positive'?`Recommendation: Positive fan sentiment is strong — teams and brands should capitalise with interactive social content and community engagement.`:`Recommendation: Negative sentiment dominates — official channels should address fan concerns proactively to manage public perception.`,
+  ];
+  document.getElementById('insightText').textContent=insightLines.join(' ');
+
+  // Explorer
+  renderItems('all');
+}
+
+/* ═══════════════════════════════════════ CHARTS ═══ */
+function renderCharts(preds, srcDist){
+  const pos=preds.filter(p=>p.sentiment==='positive').length;
+  const neg=preds.filter(p=>p.sentiment==='negative').length;
+  const neu=preds.filter(p=>p.sentiment==='neutral').length;
+
+  if(charts.dist) charts.dist.destroy();
+  charts.dist=new Chart(document.getElementById('distChart'),{
+    type:'doughnut',
+    data:{labels:['Positive','Neutral','Negative'],datasets:[{data:[pos,neu,neg],backgroundColor:['#00d68f','#8892a4','#ff4757'],borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#8892a4',font:{size:11},padding:12}}}}
+  });
+
+  const srcNmMap={
+    reddit:'🟠 Reddit', reddit_comment:'🟠 Reddit',
+    x_tweet:'𝕏 Twitter/X', twitter:'𝕏 Twitter/X', simulated_tweet:'🐦 Sim Tweets',
+    youtube_title:'🔴 YouTube', youtube_comment:'🔴 YouTube',
+    news:'📰 News'
+  };
+  const skeys=Object.keys(srcDist).filter(k=>srcDist[k].total>0);
+  if(charts.src) charts.src.destroy();
+  charts.src=new Chart(document.getElementById('srcChart'),{
+    type:'line',
+    data:{
+      labels:skeys.map(k=>srcNmMap[k]||k),
+      datasets:[
+        {label:'Positive',data:skeys.map(k=>srcDist[k].pos),borderColor:'#00d68f',backgroundColor:'rgba(0,214,143,.14)',pointBackgroundColor:'#00d68f',pointBorderColor:'#0e1420',pointBorderWidth:2,pointRadius:5,pointHoverRadius:7,borderWidth:3,tension:.35,fill:false},
+        {label:'Negative',data:skeys.map(k=>srcDist[k].neg),borderColor:'#ff4757',backgroundColor:'rgba(255,71,87,.14)',pointBackgroundColor:'#ff4757',pointBorderColor:'#0e1420',pointBorderWidth:2,pointRadius:5,pointHoverRadius:7,borderWidth:3,tension:.35,fill:false},
+        {label:'Neutral', data:skeys.map(k=>srcDist[k].neu),borderColor:'#8892a4',backgroundColor:'rgba(136,146,164,.14)',pointBackgroundColor:'#8892a4',pointBorderColor:'#0e1420',pointBorderWidth:2,pointRadius:5,pointHoverRadius:7,borderWidth:3,tension:.35,fill:false},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{position:'bottom',labels:{color:'#8892a4',font:{size:10},padding:10}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.raw} comments`}}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#5a6a82',font:{size:10}}},
+        y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#5a6a82',font:{size:10},stepSize:1}}
+      }
+    }
+  });
+
+  if(charts.eng) charts.eng.destroy();
+  charts.eng=new Chart(document.getElementById('engChart'),{
+    type:'bubble',
+    data:{datasets:[
+      {label:'Positive',data:preds.filter(p=>p.sentiment==='positive').map(p=>({x:p.compound,y:(p.likes||0)+(p.rt||0)*2,r:Math.max(4,Math.min(18,Math.log(((p.likes||0)+(p.rt||0)||1)+1)*2.8))})),backgroundColor:'rgba(0,214,143,.4)',borderColor:'#00d68f',borderWidth:1},
+      {label:'Negative',data:preds.filter(p=>p.sentiment==='negative').map(p=>({x:p.compound,y:(p.likes||0)+(p.rt||0)*2,r:Math.max(4,Math.min(18,Math.log(((p.likes||0)+(p.rt||0)||1)+1)*2.8))})),backgroundColor:'rgba(255,71,87,.4)',borderColor:'#ff4757',borderWidth:1},
+      {label:'Neutral', data:preds.filter(p=>p.sentiment==='neutral').map(p=>({x:p.compound,y:(p.likes||0)+(p.rt||0)*2,r:Math.max(4,Math.min(18,Math.log(((p.likes||0)+(p.rt||0)||1)+1)*2.8))})),backgroundColor:'rgba(136,146,164,.35)',borderColor:'#8892a4',borderWidth:1},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`Score: ${c.raw.x.toFixed(2)} | Engagement: ${Math.round(c.raw.y)}`}}},
+      scales:{
+        x:{min:-1.1,max:1.1,title:{display:true,text:'Sentiment Score',color:'#5a6a82',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#5a6a82',font:{size:10}}},
+        y:{title:{display:true,text:'Engagement',color:'#5a6a82',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#5a6a82',font:{size:10}}}
+      }}
+  });
+}
+
+/* ═══════════════════════════════════════ EXPLORER ═══ */
+function renderItems(filter){
+  let list=allItems;
+  if(['positive','negative','neutral'].includes(filter)) list=list.filter(p=>p.sentiment===filter);
+  else if(filter!=='all') list=list.filter(p=>(p.source||'').includes(filter));
+
+  const cMap={positive:'var(--pos)',negative:'var(--neg)',neutral:'var(--neu)'};
+  const srcBadge={reddit_comment:'sb-reddit_comment',x_tweet:'sb-x_tweet'};
+  const srcLabel={reddit_comment:'Reddit',x_tweet:'Twitter/X'};
+
+  document.getElementById('itemList').innerHTML=list.slice(0,20).map(p=>{
+    const conf=Math.round(p.confidence||60);
+    const comp=p.compound||0;
+    const sp=p.sentiment==='positive'?'spill-p':p.sentiment==='negative'?'spill-n':'spill-e';
+    const col=cMap[p.sentiment]||'var(--neu)';
+    const badgeCls=srcBadge[p.source]||'sb-reddit_comment';
+    const badgeLabel=srcLabel[p.source]||p.source||'unknown';
+    return`<div class="item-card">
+      <div class="ic-top">
+        <div class="ic-body">
+          <div class="ic-text">${esc(p.text)}${p.sarcasm?'<span class="sar-badge">sarcasm</span>':''}</div>
+          <div class="ic-meta">
+            <span class="src-badge ${badgeCls}">${esc(badgeLabel)}</span>
+            <span class="ic-emo" style="color:${col}">${esc(p.emotion||'neutral')}</span>
+            ${p.intensity==='high'?'<span class="int-high">high intensity</span>':''}
+            ${p.likes?`<span class="ic-eng">${Number(p.likes).toLocaleString()} likes</span>`:''}
+            ${p.rt?`<span class="ic-eng">${Number(p.rt).toLocaleString()} shares</span>`:''}
+            ${(p.key_words||[]).length?`<span class="ic-emo">${esc(p.key_words.slice(0,3).join(', '))}</span>`:''}
+          </div>
+        </div>
+        <div class="ic-right">
+          <span class="spill ${sp}">${esc(p.sentiment)}</span>
+          <span class="comp-val">${comp>=0?'+':''}${comp.toFixed(2)}</span>
+        </div>
+      </div>
+      <div class="ic-scores">
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--pos)">${Math.round(p.pos||0)}%</div><div class="ic-sl">Positive</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neu)">${Math.round(p.neu||0)}%</div><div class="ic-sl">Neutral</div></div>
+        <div class="ic-sc"><div class="ic-sv" style="color:var(--neg)">${Math.round(p.neg||0)}%</div><div class="ic-sl">Negative</div></div>
+      </div>
+      <div class="conf-strip">
+        <span class="conf-label">Confidence ${conf}%</span>
+        <div class="conf-track"><div class="conf-fill" style="width:${conf}%;background:${col}"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterBy(f,btn){
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderItems(f);
+}
+
+/* ═══════════════════════════════════════ EXPORT ═══ */
+function exportCSV(){
+  if(!allItems.length){ alert('No data to export.'); return; }
+  const h=['text','source','likes','rt','sentiment','compound','pos','neg','neu','confidence','emotion','intensity','sarcasm','key_words'];
+  const rows=allItems.map(p=>h.map(k=>{
+    const v=k==='key_words'?(p[k]||[]).join('|'):(p[k]??'');
+    return`"${String(v).replace(/"/g,'""')}"`;
+  }).join(','));
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([[h.join(','),...rows].join('\n')],{type:'text/csv'}));
+  a.download=`hashtag_sentiment_${Date.now()}.csv`;
+  a.click();
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  hashPulseMlModel=trainHashPulseML();
+  showView('searchView');
+  const input=document.getElementById('hashInput');
+  if(input) input.value='';
+});
+</script>
+
+
+</body></html>
